@@ -1,0 +1,37 @@
+[
+    {
+      "id":"disherwasher",
+      "name":"Spülmaschine ausräumen",
+      "count":0
+    },
+    {
+      "id":"trash,",
+      "name":"Mülleimer leeren",
+      "count":0
+    },
+    {
+      "id":"tableUp",
+      "name":"Tisch decken",
+      "count":0
+    },
+    {
+      "id":"tableDown",
+      "name":"Tisch abräumen",
+      "count":0
+    },
+    {
+      "id":"kitchen",
+      "name":"Küche aufräumen",
+      "count":0
+    },
+    {
+      "id":"laundry",
+      "name":"Wäsche waschen",
+      "count":0
+    },
+    {
+      "id":"groceries",
+      "name":"Einkaufen",
+      "count":0
+    }
+  ]
