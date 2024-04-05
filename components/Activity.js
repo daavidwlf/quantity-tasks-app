@@ -11,6 +11,8 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
     const [total, setTotal] = useState(0);
     const [inputShown, setInputShown] = useState(false);
 
+    const [input, setInput] = useState("");
+
     const amountData = activities?.length;
     const progress = total/goal;
 
@@ -60,7 +62,15 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
     }
 
     const addToList = () =>{
-        console.log("cußge")
+        if(input != ""){
+            let temp = activities
+            let id = input.toLowerCase()
+            id = id.replace("-","")
+            //add timestamp to avoid identical ids
+            temp.push({"count": 0, "id": id + (Date.now()).toString(), "name": input})
+            setActivities(temp)
+            setInput()
+        }
     }
 
     const deleteObject = (id) =>{
@@ -145,8 +155,9 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
                         <Text style={styles.addItemHeader}>Eintrag hinzufügen</Text>
                         <View style={styles.addItemIputBox}>
                             <TextInput 
-                            placeholder='...'
+                                value={input}
                                 style={styles.addItem}
+                                onChangeText={setInput}
                                 onPressIn={() =>{
                                     setInputShown(true)
                                     this.scrollView.scrollToEnd({animated: true})
@@ -158,12 +169,7 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
                             </TouchableHighlight>
                         </View>
                     </View>
-                    {
-                    inputShown?
-                        <View style={{height: 870}}/>
-                    :
-                        <View style={{height: 600}}/>
-                    }
+                    <View style={{height: 870}}/>
                 </ScrollView>
             </View>
         </View>
