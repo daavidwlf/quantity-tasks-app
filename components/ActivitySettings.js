@@ -31,7 +31,7 @@ const ActivitySettings = ({goal, setGoal}) => {
     }
 
     const switchGoal = (direction) => {
-        scrollViewRef.current.scrollTo({x: 80*(goal+direction)-80, y: 0, animated: false});
+        scrollViewRef.current.scrollTo({x: 80*(goal+direction)-80, y: 0, animated: true});
     }
 
     return (
@@ -40,7 +40,7 @@ const ActivitySettings = ({goal, setGoal}) => {
             <View style={styles.selectionContainer}>
                 {
                     goal != 1 ?
-                    <TouchableHighlight onPress={() => switchGoal(-1)}>
+                    <TouchableHighlight onPress={() => switchGoal(-1)} underlayColor={'transparent'} activeOpacity={0.3}>
                         <Entypo name="chevron-left" size={24} color='rgba(200,200,200,1)' />
                     </TouchableHighlight>
                     :
@@ -70,7 +70,7 @@ const ActivitySettings = ({goal, setGoal}) => {
                 </View>
                 {
                     goal != 30 ?
-                    <TouchableHighlight onPress={() => switchGoal(1)}>
+                    <TouchableHighlight onPress={() => switchGoal(1)} underlayColor={'transparent'} activeOpacity={0.3}>
                         <Entypo name="chevron-right" size={24} color='rgba(200,200,200,1)' />
                     </TouchableHighlight>
                     :

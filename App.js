@@ -1,10 +1,11 @@
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCallback, useRef, useState} from 'react';
-import { SafeAreaView, StyleSheet, Text, View, StatusBar, Dimensions} from 'react-native';
+import { GestureHandlerRootView} from 'react-native-gesture-handler';
+import { useCallback, useEffect, useRef, useState} from 'react';
+import { SafeAreaView, StyleSheet, Text, View, StatusBar, Dimensions, TouchableWithoutFeedback, Animated} from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { LinearGradient } from 'expo-linear-gradient';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BlurView } from 'expo-blur';
 
 import ActivitySettings from './components/ActivitySettings';
 import Activity from './components/Activity';
@@ -25,6 +26,10 @@ export default function App() {
   
   const bottomSheetRef = useRef(BottomSheet);
   const snapPoints = ['1%', '60%'];
+  const backdropSnapPoints = ['1%', '50%'];
+  const [showBackdrop, setShowBackdrop] = useState(false);
+  const opacity = useRef(new Animated.Value(0)).current;
+
 
   const [goal, setGoal] = useState(20);
 
@@ -38,11 +43,22 @@ export default function App() {
     return null;
   }
 
-
   StatusBar.setBarStyle('light-content', true)
 
   const triggerBottomSheet = () =>{
     bottomSheetRef.current?.expand()
+    setShowBackdrop(true);
+  }
+
+  const closeBottomSheet = () =>{
+    bottomSheetRef.current?.close()
+    setShowBackdrop(false);
+  }
+
+  const checkIndex = (index)=>{
+    if(index <= 0){
+      setShowBackdrop(false);
+    }
   }
 
   return (
@@ -52,10 +68,20 @@ export default function App() {
         <SafeAreaView>            
           <Activity triggerBottomSheet={triggerBottomSheet} goal={goal}/>
           <>
+          {
+            showBackdrop ?
+            <TouchableWithoutFeedback onPress={() => closeBottomSheet()}>
+                <BlurView intensity={3} style={styles.backdrop}/>
+            </TouchableWithoutFeedback>
+            :
+            <View/>
+          }
             <BottomSheet
               ref={bottomSheetRef}
               snapPoints={snapPoints}
               backgroundStyle={styles.bottomsheet}
+              index={-1}
+              onChange={checkIndex}
             >
               <BottomSheetView style={styles.contentContainer}>
                 <ActivitySettings goal={goal} setGoal={setGoal}/>
@@ -79,10 +105,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 
-  backdropComponent:{
+  backdrop:{
+    position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: 'black'
+    backgroundColor: 'rgba(0,0,0,0.1)'
   },
 
   bottomsheet:{
