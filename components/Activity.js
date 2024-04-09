@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableHighlight, Tou
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { AntDesign } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import sql from '../data/sql';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -16,76 +19,81 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
     const amountData = activities?.length;
     const progress = total/goal;
 
-    let sidewaysRef
+    console.log(total)
 
-    fetchData = async() =>{
-        try{
-            await setActivities(require('../data/activities.json'));
+    const storeTotal = async (total) => {
+        try {
+            total = total.toString()
+            await AsyncStorage.setItem('total', total);
+        } catch (e) {
+          console.log("Error:", e)
         }
-        catch (err){
-            setActivities([]);
-            console.log("Error:", err)
-        }
-    }
+    };
 
-    useEffect(()=>{
-        fetchData()
+    const getTotal = async () => {
+        try {
+            const value = await AsyncStorage.getItem('total');
+            if (value !== null) {
+                setTotal(parseInt(value))
+            }
+          } catch (e) {
+            console.log("Error:", e)
+          }
+    };
+
+    useEffect(()=>{ 
+        getTotal()
+        sql.createTable()
+        sql.getAllData(setActivities)
     },[])
 
     let dateFormat = new Intl.DateTimeFormat('de', {
         month: 'long',
         hour12: false,
         timeZone: 'Europe/Berlin',
-      });
+    });
 
     const  addCount = (id) =>{
-        let temp = activities
-        for(x in temp){
-            if(temp[x].id == id){
-                temp[x].count++
-                console.log(temp[x])
-                setActivities(temp);
+        for(x in activities){
+            if(activities[x].id == id){
+                sql.updateCount(id, activities[x].count+1)
+                sql.getAllData(setActivities)
                 setTotal(total+1);
+                storeTotal(total+1)
             }
         }
     }
 
     const  subCount = (id) =>{
-        let temp = activities
-        for(x in temp){
-            if(temp[x].id == id && temp[x].count >0){
-                temp[x].count--
-                setActivities(temp);
+        for(x in activities){
+            if(activities[x].id == id && activities[x].count >0){
+                sql.updateCount(id, activities[x].count-1)
+                sql.getAllData(setActivities)
                 setTotal(total-1);
+                storeTotal(total-1)
             }
         }
     }
 
     const addToList = () =>{
         if(input != ""){
-            let temp = activities
-            let id = input.toLowerCase()
-            id = id.replace("-","")
-            //add timestamp to avoid identical ids
-            temp.push({"count": 0, "id": id + (Date.now()).toString(), "name": input})
-            setActivities(temp)
+            sql.setNewData(input)
+            sql.getAllData(setActivities)
             setInput()
         }
     }
 
     const deleteObject = (id) =>{
-        let temp = activities
-        let copy = []
         let newTotal = total
-        for(x in temp){
-            if(temp[x].id == id){
-               newTotal = total - temp[x].count
-            }else{
-                copy.push(temp[x])
+        for(x in activities){
+            if(activities[x].id == id){
+                newTotal = total - activities[x].count
             }
         }
-        setActivities(copy)
+        sql.delData(id)
+        sql.getAllData(setActivities)
         setTotal(newTotal)
+        storeTotal(newTotal)
     }
 
     const isSwipeRight = ({layoutMeasurement, contentOffset, contentSize}) =>{
@@ -117,6 +125,9 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
                     ref={ref => {this.scrollView = ref}}
                 >
                     {activities?.map((item, index)=>{
+
+                        console.log(item)
+
                         return(
                             <View style={styles.swipe} key={index}>
                                 <View style={styles.deleteBox}>
@@ -134,7 +145,7 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
                                       scrollEventThrottle={400}
                                     >
                                     <View style={styles.activityBox}>
-                                        <Text allowFontScaling={false} style={styles.activityLabel}>{item.name}</Text>
+                                        <Text allowFontScaling={false} style={styles.activityLabel}>{item.title}</Text>
                                         <View style={styles.activityChange}>
                                             <TouchableHighlight onPress={() => addCount(item.id)} style={styles.plusBox} underlayColor={'transparent'} activeOpacity={0.8}>
                                                 <AntDesign name="plus" size={20} color="white" />
