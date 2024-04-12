@@ -6,6 +6,7 @@ import { Entypo } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import sql from '../data/sql';
+import storage from '../data/storage';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -19,31 +20,33 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
     const amountData = activities?.length;
     const progress = total/goal;
 
-    console.log(total)
-
-    const storeTotal = async (total) => {
-        try {
-            total = total.toString()
-            await AsyncStorage.setItem('total', total);
-        } catch (e) {
-          console.log("Error:", e)
+    const initializeList = () =>{
+        const initialList = require('../data/activities.json')
+        for(x in initialList){
+            sql.setNewData(initialList[x].name)
         }
-    };
+    }
 
-    const getTotal = async () => {
-        try {
-            const value = await AsyncStorage.getItem('total');
-            if (value !== null) {
-                setTotal(parseInt(value))
+
+    const isFirstLaunch = async() =>{
+        try{
+            const firstLaunch = await AsyncStorage.getItem('first')
+            if(firstLaunch != 'done'){
+                AsyncStorage.setItem('first', 'done')
+                sql.createTable()
+                storage.storeItem('total',0)
+                storage.storeItem('goal', 25)
+                initializeList()
             }
-          } catch (e) {
-            console.log("Error:", e)
-          }
-    };
+        }catch(err){
+            console.log("Error:", err)
+        }
+    }
+
 
     useEffect(()=>{ 
-        getTotal()
-        sql.createTable()
+        isFirstLaunch()
+        storage.getItemAsInt('total', setTotal)
         sql.getAllData(setActivities)
     },[])
 
@@ -58,8 +61,8 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
             if(activities[x].id == id){
                 sql.updateCount(id, activities[x].count+1)
                 sql.getAllData(setActivities)
-                setTotal(total+1);
-                storeTotal(total+1)
+                storage.storeItem('total', total+1);
+                storage.getItemAsInt('total', setTotal)
             }
         }
     }
@@ -69,8 +72,8 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
             if(activities[x].id == id && activities[x].count >0){
                 sql.updateCount(id, activities[x].count-1)
                 sql.getAllData(setActivities)
-                setTotal(total-1);
-                storeTotal(total-1)
+                storage.storeItem('total', total-1);
+                storage.getItemAsInt('total', setTotal)
             }
         }
     }
@@ -92,8 +95,8 @@ const Activity = ({triggerBottomSheet, goal, setGoal}) => {
         }
         sql.delData(id)
         sql.getAllData(setActivities)
-        setTotal(newTotal)
-        storeTotal(newTotal)
+        storage.storeItem('total', newTotal);
+        storage.getItemAsInt('total', setTotal)
     }
 
     const isSwipeRight = ({layoutMeasurement, contentOffset, contentSize}) =>{

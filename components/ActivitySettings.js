@@ -27,6 +27,7 @@ const ActivitySettings = ({goal, setGoal}) => {
     const detectScroll = ({layoutMeasurement, contentOffset, contentSize}) =>{
         if((contentOffset.x/80+1) % 1 == 0){
             setGoal(contentOffset.x/80+1)
+            storage.storeItem('goal', contentOffset.x/80+1)
         }
     }
 

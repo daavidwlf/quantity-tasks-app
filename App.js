@@ -31,7 +31,11 @@ export default function App() {
   const opacity = useRef(new Animated.Value(0)).current;
 
 
-  const [goal, setGoal] = useState(20);
+  const [goal, setGoal] = useState(25);
+
+  useEffect(()=>{
+    storage.getItemAsInt('goal', setGoal)
+  },[])
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
@@ -66,7 +70,7 @@ export default function App() {
       <View style={styles.container} onLayout={onLayoutRootView}>
         <LinearGradient  style={styles.gradient} colors={['rgba(39, 138, 245, 0.1)', 'transparent']}/> 
         <SafeAreaView>            
-          <Activity triggerBottomSheet={triggerBottomSheet} goal={goal}/>
+          <Activity triggerBottomSheet={triggerBottomSheet} goal={goal} setGoal={setGoal}/>
           <>
           {
             showBackdrop ?
