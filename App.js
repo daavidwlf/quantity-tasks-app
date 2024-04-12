@@ -17,12 +17,11 @@ const {width, height} = Dimensions.get('screen');
 export default function App() {
 
   const [fontsLoaded, fontError] = useFonts({
-    'Supreme-Light': require('./data/fonts/otf/Supreme-Light.otf'),
-    'Supreme-Regular': require('./data/fonts/otf/Supreme-Regular.otf'),
-    'Supreme-Medium': require('./data/fonts/otf/Supreme-Medium.otf'),
-    'Supreme-Bold': require('./data/fonts/otf/Supreme-Bold.otf')
+    'Supreme-Light': require('./assets/fonts/otf/Supreme-Light.otf'),
+    'Supreme-Regular': require('./assets/fonts/otf/Supreme-Regular.otf'),
+    'Supreme-Medium': require('./assets/fonts/otf/Supreme-Medium.otf'),
+    'Supreme-Bold': require('./assets/fonts/otf/Supreme-Bold.otf')
   });
-  
   
   const bottomSheetRef = useRef(BottomSheet);
   const snapPoints = ['1%', '60%'];
